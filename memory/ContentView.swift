@@ -8,83 +8,70 @@
 import SwiftUI
 
 struct ContentView: View {
-    var flags: [String] = ["🇰🇷","🇪🇺","🇯🇵","🇺🇸","🇹🇭","🇫🇷","🇨🇮","🇩🇪","🇨🇦","🇦🇺"]
+    let flags: [String] = ["🇰🇷","🇪🇺","🇯🇵","🇺🇸","🇹🇭","🇫🇷","🇨🇮","🇩🇪","🇨🇦","🇦🇺"]
     let sports: [String] = ["⚽️","🏀","🏈","⚾️","🎾","🏐","🏓","🏸","🏒","🏹"]
     let animals: [String] = ["🐶","🐱","🐯","🦁","🦊","🐻","🐼","🐷","🐰","🐮"]
+    @State var theme = 
+        ["🇰🇷","🇪🇺","🇯🇵","🇺🇸","🇹🇭","🇫🇷","🇨🇮","🇩🇪","🇨🇦","🇦🇺"]
+    @State var gameStart = false
+    @State private var orientation = UIDevice.current.orientation
     
     var body: some View {
-        @State var theme: [String] = animals
-        @State var totalCards = theme + theme
+        let totalCards: [String] = (theme + theme).shuffled()
         
         Text("Memory!")
             .imageScale(.large)
             .font(.system(.largeTitle, weight: .bold))
             .padding()
         
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 7) {
+        if(gameStart == false) {
+            Text("Pick a Theme!")
+                .font(.system(.largeTitle, weight: .bold))
+                .padding(.vertical, 265)
+        }
+        else{
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 90))], spacing:7) {
                 ForEach(0..<20, id: \.self) {
                     index in
                     CardView(image: totalCards[index]).aspectRatio(39/50, contentMode: .fit)
                 }
+                .padding()
             }
-        .padding()
+        }
         
         HStack(spacing: 60){
-            Button(action: {
-                theme.replaceSubrange(0...9, with: repeatElement(flags[0], count: 10))
-            },
-                label: {
-                VStack{
-                    Image(systemName: "flag.circle")
-                        .font(.largeTitle)
-                    Text("Flags")
-                        .font(.system(size: 12, weight: .bold))
-                }
-            }
-            )
-            Button(action: {
-                for i in 0...9 {
-                    theme[i] = flags[i]  //how??
-                    print("yo")
-                }
-            }, label: {
-                VStack{
-                    Image(systemName: "figure.run.circle")
-                        .font(.largeTitle)
-                    Text("Sports")
-                        .font(.system(size: 12, weight: .bold))
-                }
-            })
-            Button(action: {
-                theme = animals
-            }, label: {
-                VStack {
-                    Image(systemName: "dog.circle")
-                        .font(.largeTitle)
-                    Text("Animals")
-                        .font(.system(size: 12, weight: .bold))
-                }
-                
-            })
+            themeChoose(topic: flags, pic: "flag.circle", label: "Flags")
+            themeChoose(topic: sports, pic: "figure.run.circle", label: "Sports")
+            themeChoose(topic: animals, pic: "dog.circle", label: "Animals")
         }
     }
     
-    
+    func themeChoose
+    (topic: [String], pic: String, label: String) -> some View {
+        Button(action: {
+            gameStart = true
+                theme = topic
+        }, label: {
+            VStack {
+                Image(systemName: pic)
+                    .font(.largeTitle)
+                Text(label)
+                    .font(.system(size: 12, weight: .bold))
+            }
+            
+        })
+    }
     
 }
 
 
-
-
-
 struct CardView: View {
     let image: String
-    @State var face: Bool = true
+    @State var face: Bool = false
     var body: some View {
         let surf = RoundedRectangle(cornerRadius: 10)
         ZStack {
             if (face == false) {
-                surf.fill()
                 surf.foregroundColor(.red).opacity(0.7)
                 surf.strokeBorder(lineWidth: 2)
             }
